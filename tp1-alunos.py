@@ -2,14 +2,14 @@ import gymnasium as gym
 import numpy as np
 import pygame
 
-ENABLE_WIND = False
+ENABLE_WIND = True
 WIND_POWER = 15.0
 TURBULENCE_POWER = 0.0
 GRAVITY = -10.0
 RENDER_MODE = 'human'
 RENDER_MODE = None #seleccione esta opção para não visualizar o ambiente (testes mais rápidos)
 EPISODES = 1000
-SHOW_ALL = True
+SHOW_ALL = False
 
 env = gym.make("LunarLander-v3", render_mode =RENDER_MODE, 
     continuous=True, gravity=GRAVITY, 
@@ -39,7 +39,7 @@ def check_successful_landing(observation):
 
     if SHOW_ALL:
         print("⚠️ Aterragem falhada!")        
-    return False
+    return False      
         
 def simulate(steps=1000,seed=None, policy = None):    
     observ, _ = env.reset(seed=seed)
@@ -98,50 +98,74 @@ def rightThrust(action):
     return action
 
 def reactive_agent(observation):
-    ##TODO: Implemente aqui o seu agente reativo
-    ##Substitua a linha abaixo pela sua implementação
+
+    #print (observation[2])
+
     action = [0, 0]
-
-    if (getLLT(observation) and getRLT(observation) and abs(getX(observation) < 0.2)):
-        action = [0,0]
-        return action
-
-    #avoid having too much angular speed
-    elif (getVo(observation) < -0.1):
-        return leftThrust(action)  
-    elif (getVo(observation) > 0.1):
-        return rightThrust(action) 
-
-    #avoid having too much horizontal speed
-    elif (getVx(observation) < -0.1):
-        return rightThrust(action) + goUp(action)
-    elif (getVx(observation) > 0.1):
-        return leftThrust(action) + goUp(action)
-
-
-    #try not to rotate too much
-    elif (getY(observation) > 1 and geto(observation) > np.deg2rad(10)):
-        return rightThrust(action)
-    elif (getY(observation) < 1 and geto(observation) < -np.deg2rad(10)):
-        return leftThrust(action)
-
-    #if not in flags area move to flags area
-    elif (getX(observation) < -0.2 and geto(observation) < np.deg2rad(30) and getVy(observation) < 0.1):
-        return leftThrust(action) + goUp(action)
-    elif (getX(observation) < -0.2 and geto(observation) > np.deg2rad(30) and getVy(observation) < 0.1):
-        return rightThrust(action) + goUp(action)
-    elif (getX(observation) > 0.2 and geto(observation) < np.deg2rad(30) and getVy(observation) < 0.1):
-        return leftThrust(action) + goUp(action)
-    elif (getX(observation) > 0.2 and geto(observation) > np.deg2rad(30) and getVy(observation) < 0.1):
-        return rightThrust(action) + goUp(action)
-
-    #if in area and falling too fast slow down
-    elif (getVy(observation) < -0.2 and abs(geto(observation)) < np.deg2rad(45)):
-        return  goUp(action)
     
-    
-    elif (getVy(observation) < -0.2 and abs(geto(observation)) < 0.05): 
-        return goUp(action)
+    if (ENABLE_WIND == False):
+        if (getLLT(observation) and getRLT(observation) and abs(getX(observation)) < 0.19):
+            action = [0,0]
+            return action
+
+        #if falling too fast slow down
+        elif (getVy(observation) < -0.19):#and abs(geto(observation)) < np.deg2rad(45)):
+            return  goUp(action)
+
+        #avoid having too much angular speed
+        elif (getVo(observation) < -0.1):
+            return leftThrust(action)  
+        elif (getVo(observation) > 0.1):
+            return rightThrust(action) 
+
+        #avoid having too much horizontal speed
+        elif (getVx(observation) < -0.08):
+            return rightThrust(action) + goUp(action)
+        elif (getVx(observation) > 0.08):
+            return leftThrust(action) + goUp(action)
+
+        #try not to rotate too much between the flags
+        elif (geto(observation) > np.deg2rad(0) and abs(getX(observation)) < 0.19):
+            return rightThrust(action)
+        elif (geto(observation) < -np.deg2rad(0) and abs(getX(observation)) < 0.19):
+            return leftThrust(action)
+
+        #if not in flags area move to flags area
+        elif (getX(observation) < -0.19 and geto(observation) < np.deg2rad(8) and getVy(observation) < 0.05):
+            return leftThrust(action) + goUp(action)
+        elif (getX(observation) < -0.19 and geto(observation) > np.deg2rad(8) and getVy(observation) < 0.05):
+            return rightThrust(action) + goUp(action)
+        elif (getX(observation) > 0.19 and geto(observation) < np.deg2rad(8) and getVy(observation) < 0.05):
+            return leftThrust(action) + goUp(action)
+        elif (getX(observation) > 0.19 and geto(observation) > np.deg2rad(8) and getVy(observation) < 0.05):
+            return rightThrust(action) + goUp(action)
+        
+    else:
+        if (getLLT(observation) and getRLT(observation) and abs(getX(observation)) < 0.19):
+            action = [0,0]
+            return action
+        
+        elif (getX(observation) < -0.19 and geto(observation) > -np.deg2rad(8) and getVy(observation) < 0):
+            return rightThrust(action) + goUp(action)
+        elif (getX(observation) < -0.19 and geto(observation) < -np.deg2rad(8) and getVy(observation) < 0):
+            return leftThrust(action) + goUp(action)
+        elif (getX(observation) > 0.19 and geto(observation) > np.deg2rad(8) and getVy(observation) < 0):
+            return rightThrust(action) + goUp(action)
+        elif (getX(observation) > 0.19 and geto(observation) < np.deg2rad(8) and getVy(observation) < 0):
+            return leftThrust(action) + goUp(action)
+        
+        elif (geto(observation) > np.deg2rad(0) and abs(getX(observation)) < 0.19):
+            return rightThrust(action)
+        elif (geto(observation) < -np.deg2rad(0) and abs(getX(observation)) < 0.19):
+            return leftThrust(action)
+        
+        elif (-0.18 < getVy(observation) < 0):
+            return goUp()
+        
+        #if falling too fast slow down
+        elif (getVy(observation) < -0.19 and abs(getX(observation)) < 0.19):
+            return  goUp(action)
+        
     return action 
     
     
@@ -176,6 +200,8 @@ for i in range(EPISODES):
     finalRate = success/(i+1)*100
     if SHOW_ALL:
         print('Taxa de sucesso:', success/(i+1)*100)
-    
-print('Média de passos das aterragens bem sucedidas:', steps/(su*(i+1))*100)
-print('Taxa de sucesso:', success/(i+1)*100) 
+        
+
+print('\nWind Active: ', ENABLE_WIND)
+print('\nMédia de passos das aterragens bem sucedidas:', finalSteps)
+print('Taxa de sucesso:', finalRate) 
