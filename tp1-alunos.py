@@ -11,10 +11,10 @@ RENDER_MODE = None #seleccione esta opção para não visualizar o ambiente (tes
 EPISODES = 1000
 SHOW_ALL = False
 
-env = gym.make("LunarLander-v3", render_mode =RENDER_MODE, 
-    continuous=True, gravity=GRAVITY, 
-    enable_wind=ENABLE_WIND, wind_power=WIND_POWER, 
-    turbulence_power=TURBULENCE_POWER)
+env = gym.make("LunarLander-v3", render_mode = RENDER_MODE, 
+    continuous = True, gravity = GRAVITY, 
+    enable_wind = ENABLE_WIND, wind_power = WIND_POWER, 
+    turbulence_power = TURBULENCE_POWER)
 
 
 def check_successful_landing(observation):
@@ -185,6 +185,9 @@ def keyboard_agent(observation):
     return action
     
 
+print( EPISODES,' Episodes')
+print('Wind Active: ', ENABLE_WIND)
+
 success = 0.0
 steps = 0.0
 for i in range(EPISODES):
@@ -201,7 +204,5 @@ for i in range(EPISODES):
     if SHOW_ALL:
         print('Taxa de sucesso:', success/(i+1)*100)
         
-
-print('\nWind Active: ', ENABLE_WIND)
 print('\nMédia de passos das aterragens bem sucedidas:', finalSteps)
 print('Taxa de sucesso:', finalRate) 
