@@ -9,6 +9,7 @@ GRAVITY = -10.0
 RENDER_MODE = 'human'
 RENDER_MODE = None #seleccione esta opção para não visualizar o ambiente (testes mais rápidos)
 EPISODES = 1000
+SHOW_ALL = True
 
 env = gym.make("LunarLander-v3", render_mode =RENDER_MODE, 
     continuous=True, gravity=GRAVITY, 
@@ -32,10 +33,12 @@ def check_successful_landing(observation):
     stable = stable_velocity and stable_orientation
  
     if legs_touching and on_landing_pad and stable:
-        print("✅ Aterragem bem sucedida!")
+        if SHOW_ALL:
+            print("✅ Aterragem bem sucedida!")
         return True
 
-    print("⚠️ Aterragem falhada!")        
+    if SHOW_ALL:
+        print("⚠️ Aterragem falhada!")        
     return False
         
 def simulate(steps=1000,seed=None, policy = None):    
@@ -167,6 +170,12 @@ for i in range(EPISODES):
     success += su
     
     if su>0:
-        print('Média de passos das aterragens bem sucedidas:', steps/(su*(i+1))*100)
-    print('Taxa de sucesso:', success/(i+1)*100)
+        finalSteps = steps/(su*(i+1))*100
+        if SHOW_ALL:
+            print('Média de passos das aterragens bem sucedidas:', steps/(su*(i+1))*100)
+    finalRate = success/(i+1)*100
+    if SHOW_ALL:
+        print('Taxa de sucesso:', success/(i+1)*100)
     
+print('Média de passos das aterragens bem sucedidas:', steps/(su*(i+1))*100)
+print('Taxa de sucesso:', success/(i+1)*100) 
