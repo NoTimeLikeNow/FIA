@@ -1,0 +1,5 @@
+gymnasium
+numpy
+pygame
+swig
+gymnasium[box2d]
