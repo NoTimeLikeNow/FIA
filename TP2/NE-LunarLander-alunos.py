@@ -275,7 +275,7 @@ if __name__ == '__main__':
     ntests = 1000
 
     fit, success = 0, 0
-    couter = 0
+    counter = 0
     for i in range(1,ntests+1):
         if counter == 11: 
             render_mode = 'human'
