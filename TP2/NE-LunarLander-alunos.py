@@ -28,15 +28,18 @@ for i in range(1, len(SHAPE)):
 
 POPULATION_SIZE = 100
 NUMBER_OF_GENERATIONS = 120
-PROB_CROSSOVER = 0.7
+PROB_CROSSOVER = 0.3 #0.7
 Shares_CROSSOVER = 0.5
 
   
-PROB_MUTATION = 1.0/GENOTYPE_SIZE*0.25
+PROB_MUTATION = 1.0/GENOTYPE_SIZE*0.15
 STD_DEV = 0.1
 
 
 ELITE_SIZE = 1
+
+
+HUMAN_TESTS = 3
 
 
 def network(shape, observation,ind):
@@ -79,7 +82,7 @@ def objective_function(observation):
     y = observation[1]
     vy = observation[3]
     teta  = observation[4]
-    return -abs(x) - abs(y) - abs(vy + 0.18) - abs(teta), check_successful_landing(observation)
+    return -abs(x) - abs(y + 0.5) - abs(vy + 0.18) - abs(teta), check_successful_landing(observation)
 
 def simulate(genotype, render_mode = None, seed=None, env = None):
     #Simulates an episode of Lunar Lander, evaluating an individual
@@ -250,14 +253,14 @@ def load_bests(fname):
 if __name__ == '__main__':
     
     evolve = True
-    #if evolve:
-    seeds = [964, 952, 364, 913, 140, 726, 112, 631, 881, 844, 965, 672, 335, 611, 457, 591, 551, 538, 673, 437, 513, 893, 709, 489, 788, 709, 751, 467, 596, 976]
-    for i in range(1):    
-        random.seed(seeds[i])
-        bests = evolution()
-        with open(f'log{i}.txt', 'w') as f:
-            for b in bests:
-                f.write(f'{b[1]}\t{SHAPE}\t{b[0]}\n')
+    if evolve:
+        seeds = [964, 952, 364, 913, 140, 726, 112, 631, 881, 844, 965, 672, 335, 611, 457, 591, 551, 538, 673, 437, 513, 893, 709, 489, 788, 709, 751, 467, 596, 976]
+        for i in range(1):    
+            random.seed(seeds[i])
+            bests = evolution()
+            with open(f'log{i}.txt', 'w') as f:
+                for b in bests:
+                    f.write(f'{b[1]}\t{SHAPE}\t{b[0]}\n')
 
                 
     #else:
@@ -275,14 +278,11 @@ if __name__ == '__main__':
     ntests = 1000
 
     fit, success = 0, 0
-    counter = 0
     for i in range(1,ntests+1):
-        if counter == 100: 
+        if i % (ntests//HUMAN_TESTS) == 0: 
             render_mode = 'human'
-            counter = 0
         f, s = simulate(ind['genotype'], render_mode=render_mode, seed = None)
         render_mode = None
-        fit += f
+        fit += f   
         success += s
-        counter += 1
     print(fit/ntests, str(success/ntests * 100) + "%")
