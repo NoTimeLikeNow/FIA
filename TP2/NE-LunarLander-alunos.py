@@ -279,6 +279,7 @@ if __name__ == '__main__':
     for i in range(1,ntests+1):
         if counter == 11: 
             render_mode = 'human'
+            counter = 0
         f, s = simulate(ind['genotype'], render_mode=render_mode, seed = None)
         render_mode = None
         fit += f
