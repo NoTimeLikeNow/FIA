@@ -26,12 +26,13 @@ GENOTYPE_SIZE = 0
 for i in range(1, len(SHAPE)):
     GENOTYPE_SIZE += SHAPE[i-1]*SHAPE[i]
 
-POPULATION_SIZE = 50
-NUMBER_OF_GENERATIONS = 500
+POPULATION_SIZE = 100
+NUMBER_OF_GENERATIONS = 120
 PROB_CROSSOVER = 0.7
+Shares_CROSSOVER = 0.5
 
   
-PROB_MUTATION = 1.0/GENOTYPE_SIZE
+PROB_MUTATION = 1.0/GENOTYPE_SIZE*0.25
 STD_DEV = 0.1
 
 
@@ -157,7 +158,7 @@ def crossover(p1, p2):
     subject2 = p2['genotype']
     #Create an offspring from the individuals p1 and p2
     for i in range (len(subject1)):
-        if random.uniform(0, 1) < 0.5: #around half the genes are given from subject 2
+        if random.uniform(0, 1) <= Shares_CROSSOVER: #around half the genes are given from subject 2
             subject1[i] = subject2[i]
     p1['genotype'] = subject1
     
@@ -167,7 +168,7 @@ def mutation(p):
     #Mutate genes
     subject = p['genotype']
     for i in range (len(subject)):
-        if random.uniform(0, 1) < PROB_MUTATION:
+        if random.uniform(0, 1) <= PROB_MUTATION:
             subject[i] = random.uniform(-1, 1)
     
     p['genotype']  =  subject
@@ -202,6 +203,10 @@ def evolution():
         
         #create offspring
         while len(offspring) < POPULATION_SIZE:
+            if len(offspring) < ELITE_SIZE: 
+                offspring. append(population[len(offspring)])
+                continue
+                
             if random.random() < PROB_CROSSOVER:
                 p1 = population[0]
                 p2 = parent_selection(population)
@@ -244,33 +249,39 @@ def load_bests(fname):
 
 if __name__ == '__main__':
     
-    evolve = False
-    if evolve:
-        seeds = [964, 952, 364, 913, 140, 726, 112, 631, 881, 844, 965, 672, 335, 611, 457, 591, 551, 538, 673, 437, 513, 893, 709, 489, 788, 709, 751, 467, 596, 976]
-        for i in range(1):    
-            random.seed(seeds[i])
-            bests = evolution()
-            with open(f'log{i}.txt', 'w') as f:
-                for b in bests:
-                    f.write(f'{b[1]}\t{SHAPE}\t{b[0]}\n')
+    evolve = True
+    #if evolve:
+    seeds = [964, 952, 364, 913, 140, 726, 112, 631, 881, 844, 965, 672, 335, 611, 457, 591, 551, 538, 673, 437, 513, 893, 709, 489, 788, 709, 751, 467, 596, 976]
+    for i in range(1):    
+        random.seed(seeds[i])
+        bests = evolution()
+        with open(f'log{i}.txt', 'w') as f:
+            for b in bests:
+                f.write(f'{b[1]}\t{SHAPE}\t{b[0]}\n')
 
                 
-    else:
-        render_mode = None
-        #validate individual
-        bests = load_bests('log0.txt')
-        b = bests[-1]
-        SHAPE = b[1]
-        ind = b[2]
-            
-        ind = {'genotype': ind, 'fitness': None}
-            
-            
-        ntests = 1000
+    #else:
+    render_mode = None
+    #validate individual
+    bests = load_bests('log0.txt')
+    b = bests[-1]
+    print(b[0]) 
+    SHAPE = b[1]
+    ind = b[2]
+        
+    ind = {'genotype': ind, 'fitness': None}
+        
+        
+    ntests = 1000
 
-        fit, success = 0, 0
-        for i in range(1,ntests+1):
-            f, s = simulate(ind['genotype'], render_mode=render_mode, seed = None)
-            fit += f
-            success += s
-        print(fit/ntests, success/ntests)
+    fit, success = 0, 0
+    couter = 0
+    for i in range(1,ntests+1):
+        if counter == 11: 
+            render_mode = 'human'
+        f, s = simulate(ind['genotype'], render_mode=render_mode, seed = None)
+        render_mode = None
+        fit += f
+        success += s
+        counter += 1
+    print(fit/ntests, str(success/ntests * 100) + "%")
